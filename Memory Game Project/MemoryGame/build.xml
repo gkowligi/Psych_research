@@ -1,0 +1,33 @@
+<project name="MemoryGame" default="compile">
+<property name="src" location="src" />
+<property name="build" location="build" />
+<property name="images" location="image" />
+
+<target name="makejar" depends="compile" description="Create a jar file containing the game.">
+    <jar destfile="src/MemoryGame.jar" basedir="${build}" >
+        <zipgroupfileset dir="libraries" includes="*.jar"/>
+        <manifest>
+            <attribute name="Main-Class" value="memorygame.MemoryGameGui" />
+        </manifest>
+    
+    </jar>
+</target>
+<target name="compile" description="Create a build directory with compiled code and resources.">
+    <mkdir dir="${build}" />
+    <mkdir dir="${build}/image" />
+    <copy todir="${build}/image" >
+        <fileset dir="image" />
+    </copy>
+    <javac srcdir="${src}" destdir="${build}" debug="true" 
+	   debuglevel="lines,source" includeantruntime="false" />
+</target>
+<target name="run" depends="compile" description="Run the Game">
+    <java classpath="${build}" classname="memorygame.MemoryGameGui" fork="true">
+        <classpath>
+            <fileset dir= "${build}">
+                <include name="**/*.class" />
+            </fileset>
+            
+        </classpath>
+    </java>
+</target>
