@@ -256,9 +256,9 @@ public class MemoryGameComponent extends JComponent implements ActionListener
 		for(int i=0;i<grid.getSize();i++){
 			String image;
 			if(grid.getVal(i)<10)
-				image="images/shape0"+grid.getVal(i)+".tiff";
+				image="images/shape0"+grid.getVal(i)+".png";
 			else
-				image="images/shape"+grid.getVal(i)+".tiff";
+				image="images/shape"+grid.getVal(i)+".png";
 			imgIcons.add(new ImageIcon(classLoader.getResource(image)));
 		}
 		
