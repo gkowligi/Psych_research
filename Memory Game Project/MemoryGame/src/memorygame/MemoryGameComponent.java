@@ -135,8 +135,7 @@ public class MemoryGameComponent extends JComponent implements ActionListener
 		public void actionPerformed (ActionEvent event) {
 
 			Class classs = this.getClass();
-			Icon imgBlank = new ImageIcon(
-					classs.getResource("images/000.jpg"));
+			
 
 			//if 2 MemoryCards are flipped, flip back over
 			flipBack();
@@ -250,16 +249,19 @@ public class MemoryGameComponent extends JComponent implements ActionListener
 		ClassLoader classLoader = this.getClass().getClassLoader();
 		//Class classs = this.getClass();
 		//load Icons
-		//URL url = this.getClass().getClassLoader().getResource("image/200.jpg");
+		//URL url = this.getClass().getClassLoader().getResource("images/shape01.tiff");
 		//System.out.println(url);
 		//imgIcons.add(new ImageIcon(url));
 
-		for (String image : images8) {
+		for(int i=0;i<grid.getSize();i++){
+			String image;
+			if(grid.getVal(i)<10)
+				image="images/shape0"+grid.getVal(i)+".tiff";
+			else
+				image="images/shape"+grid.getVal(i)+".tiff";
 			imgIcons.add(new ImageIcon(classLoader.getResource(image)));
 		}
-		for (String image : images10) {
-			imgIcons.add(new ImageIcon(classLoader.getResource(image)));
-		}
+		
 		imgBlank = new ImageIcon(classLoader.getResource("images/000.jpg"));
 	}
 

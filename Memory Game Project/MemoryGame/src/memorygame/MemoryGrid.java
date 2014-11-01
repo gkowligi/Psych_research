@@ -12,6 +12,7 @@ import java.util.Random;
  */
 
 public class MemoryGrid{
+	
 	ArrayList<MemoryCard> memGrid = new ArrayList<MemoryCard>();
 	int size;
 	boolean isOver=false;
@@ -32,6 +33,29 @@ public class MemoryGrid{
 			MemoryCard temp2 = new MemoryCard(i);
 			memGrid.add(temp);
 			memGrid.add(temp2);
+		}   
+
+	}
+
+	public MemoryGrid(int gridSize, int nImage){
+		if (gridSize % 2 == 0) 
+			size = gridSize;
+		else{
+			System.out.println("Grid Size Error: Grid size has to be even");
+			System.exit(1);
+		}
+		currentFlippedImage=new ArrayList<Integer>();
+		ArrayList<Integer> a = new ArrayList<Integer>();
+		for(int i=1;i<=nImage;i++){
+			a.add(i);
+		}
+		for(int i=0; i<size/2; i++){
+			int r=(int)(Math.random()*a.size());
+			MemoryCard temp  = new MemoryCard(a.get(r));
+			MemoryCard temp2 = new MemoryCard(a.get(r));
+			memGrid.add(temp);
+			memGrid.add(temp2);
+			a.remove(r);
 		}   
 
 	}
@@ -132,8 +156,8 @@ public class MemoryGrid{
 	 * @return value of MemoryCard[i]
 	 */
 	public int getVal(int i){
-		MemoryCard temp = memGrid.get(i);
-		return temp.getVal();
+		
+		return memGrid.get(i).getVal();
 	}
 
 	/**Method flip(int i)

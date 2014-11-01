@@ -26,8 +26,9 @@ public class MemoryGameGui {
 	static final int NUMBER_OF_GAMES=10;
 	static final int WINDOW_SIZE = 500;
 	static final int GRID_SIZE=30;
+	static final int NUMBER_OF_SHAPES=50;
 	static JFrame frame = new JFrame("Memory Card Game");
-	static MemoryGrid grid = new MemoryGrid(GRID_SIZE);
+	static MemoryGrid grid = new MemoryGrid(GRID_SIZE,NUMBER_OF_SHAPES);
 	static MemoryGameComponent mgc = new MemoryGameComponent(grid,NUMBER_OF_GAMES);
 
 	/** main method to open JFrame 
