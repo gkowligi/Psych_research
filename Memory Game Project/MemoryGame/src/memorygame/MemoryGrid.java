@@ -16,7 +16,7 @@ public class MemoryGrid{
 	ArrayList<MemoryCard> memGrid = new ArrayList<MemoryCard>();
 	int size;
 	boolean isOver=false;
-	ArrayList<Integer> currentFlippedImage;
+	ArrayList<Integer> currentFlipped;
 	/** MemoryGrid constructor that takes in a parameter
 	 * @param gridSize for the size the of the grid
 	 */
@@ -27,7 +27,7 @@ public class MemoryGrid{
 			System.out.println("Grid Size Error: Grid size has to be even");
 			System.exit(1);
 		}
-		currentFlippedImage=new ArrayList<Integer>();
+		currentFlipped=new ArrayList<Integer>();
 		for(int i=1; i<((size/2)+1); i++){
 			MemoryCard temp  = new MemoryCard(i);
 			MemoryCard temp2 = new MemoryCard(i);
@@ -44,7 +44,7 @@ public class MemoryGrid{
 			System.out.println("Grid Size Error: Grid size has to be even");
 			System.exit(1);
 		}
-		currentFlippedImage=new ArrayList<Integer>();
+		currentFlipped=new ArrayList<Integer>();
 		ArrayList<Integer> a = new ArrayList<Integer>();
 		for(int i=1;i<=nImage;i++){
 			a.add(i);
@@ -87,12 +87,7 @@ public class MemoryGrid{
 	 * @return boolean true if one card is flipped, false otherwise
 	 */
 	public boolean isOneFlipped(){
-		int count=0;
-		for(MemoryCard comp: memGrid){
-			if(comp.isFlipped()==true)
-				count++;
-		}
-		return (count==1);
+		return currentFlipped.size()==1;
 	}
 
 	/**Method is TwoFlipped()
@@ -100,12 +95,7 @@ public class MemoryGrid{
 	 * @return boolean true if two cards are flipped, false otherwise
 	 */
 	public boolean isTwoFlipped(){
-		int count=0;
-		for(MemoryCard comp: memGrid){
-			if(comp.isFlipped()==true)
-				count++;
-		}
-		return(count==2);
+		return currentFlipped.size()==2;
 	}
 
 	/**Method flippedEquals(int i)
@@ -113,29 +103,28 @@ public class MemoryGrid{
 	 * @param i the location in the arraylist of the memorycard that is being compared
 	 * @return boolean true if the indexed card is equal to the memory card that is being compared
 	 */
-	public boolean flippedEquals(int i){
-		MemoryCard temp = memGrid.get(i);
-		MemoryCard comp = memGrid.get(this.getFlipped(i));
-		return comp.Equals(temp);
+	public boolean flippedEquals(int i, int j){
+		return memGrid.get(i).Equals(memGrid.get(j));
 	}
 
 	/**Method getFlipped()
 	 * @return retval the position of the flipped MemoryCard
 	 */
-	public int getFlipped(){
-		int retVal=-1, count=-1;
+	public ArrayList<Integer> getFlipped(){
+		/*int retVal=-1, count=-1;
 		for(MemoryCard comp: memGrid){
 			count++;
 			if(comp.isFlipped()==true)
 				retVal=count;
 		}
-		return retVal;
+		return retVal;*/
+		return currentFlipped;
 	}
 
 	/** Method getFlipped(int i)
 	 * @return retval the position of the flipped MemoryCard that is not index i
 	 */
-	public int getFlipped(int i){
+	/*public int getFlipped(int i){
 		int retVal=-1, count=-1;
 		for(MemoryCard comp: memGrid){
 			count++;
@@ -143,7 +132,8 @@ public class MemoryGrid{
 				retVal=count;
 		}
 		return retVal;
-	}
+		
+	}*/
 
 	/**Method isOver()
 	 * @return boolean true if the came is over, false if the game is not over
@@ -166,7 +156,15 @@ public class MemoryGrid{
 	 */
 	public void flip(int i){
 		MemoryCard temp = memGrid.get(i);
+		
+		if(temp.isFlipped()&&currentFlipped.size()>0)
+			currentFlipped.remove((Integer)i);
+		else
+			currentFlipped.add(i);
 		temp.flip();
-		currentFlippedImage.add(i);
+	}
+	public void flushCurrentFlipped(){
+		while(!currentFlipped.isEmpty())
+			currentFlipped.remove(currentFlipped.size()-1);
 	}
 }

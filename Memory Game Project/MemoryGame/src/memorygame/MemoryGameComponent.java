@@ -19,7 +19,7 @@ import java.net.URL;
 @version CS56 Spring 2013
 @see MemoryGrid
  */
-public class MemoryGameComponent extends JComponent implements ActionListener
+public class MemoryGameComponent extends JComponent implements ActionListener,KeyListener
 {
 	private static final int FLIP_BACK_TIME=1000;
 
@@ -53,7 +53,7 @@ public class MemoryGameComponent extends JComponent implements ActionListener
 
 
 	private JFrame	      mainFrame		= null;
-
+	private Timer		flipBackTimer=null;
 	/** Constructor
 
 	@param game an object that implements the MemoryGrid interface
@@ -66,14 +66,17 @@ public class MemoryGameComponent extends JComponent implements ActionListener
 		nGames=ngames;
 
 		mainFrame=new JFrame();
-		timer = new Timer(1, this);
+		timer = new Timer(0, this);
 		grid = game;
 		buttons= new JButton[grid.getSize()];
-
+		grid.shuffle();
 
 		loadImageIcons(); // loads the array list of icons and sets imgBlank
 		buildTiles();
 		startTime = 0;//dummy val. it is initialized when first image is flipped
+		
+		//mainFrame.addKeyListener(this);
+		//timer.start();
 	}
 
 
@@ -83,7 +86,9 @@ public class MemoryGameComponent extends JComponent implements ActionListener
        time running out.
 	 */
 	public void actionPerformed(ActionEvent e) {
-
+			//buttons[0].doClick();
+			//System.out.println(System.currentTimeMillis());
+		
 	}
 
 
@@ -134,16 +139,21 @@ public class MemoryGameComponent extends JComponent implements ActionListener
 
 		public void actionPerformed (ActionEvent event) {
 
-			Class classs = this.getClass();
+			System.out.println(System.currentTimeMillis());
+			
 			
 
 			//if 2 MemoryCards are flipped, flip back over
-			flipBack();
+
+			if(grid.isTwoFlipped()){
+				flipBack();
+				flipBackTimer.stop();
+			}
 			//if no MemoryCards are flipped, flip one
 			if (!grid.isOneFlipped()){
 				if (!firstImageFlipped) {
 					startTime = (new Date().getTime());
-					timer.start();
+					//timer.start();
 					firstImageFlipped = true;
 					//		    		pauseButton.setEnabled(true);
 				}
@@ -160,18 +170,19 @@ public class MemoryGameComponent extends JComponent implements ActionListener
 			//then check if theyre matching
 			else{
 
-
+				int a=grid.getFlipped().get(0);
 				grid.flip(num);
 				JButton jb = buttons[num];
 
 				jb.setIcon(imgIcons.get(num)); //set image according to val
 
 				jb.setEnabled(false);
-				if (grid.flippedEquals(num)){ //if they're matching keep num displayed and set flipped as false
+
+				if (grid.flippedEquals(num,a)){ //if they're matching keep num displayed and set flipped as false
 					gameCounter++;
-					grid.flip(num); 
-					buttons[grid.getFlipped()].setEnabled(false);
-					grid.flip(grid.getFlipped());
+
+					buttons[num].setEnabled(false);
+					grid.flushCurrentFlipped();
 
 					//check if game is over
 					if(gameCounter==grid.getSize()/2){
@@ -184,12 +195,13 @@ public class MemoryGameComponent extends JComponent implements ActionListener
 					ActionListener listener = new ActionListener() {
 						public void actionPerformed(ActionEvent e) { flipBack(); }
 					};
-					Timer t = new Timer(FLIP_BACK_TIME, listener);
-					t.setRepeats(false);
-					t.start();
+					flipBackTimer = new Timer(FLIP_BACK_TIME, listener);
+					flipBackTimer.setRepeats(false);
+					flipBackTimer.start();
 				} // end of inner if else
 
 			} // end of outer if else
+			
 		}
 	}
 
@@ -204,6 +216,8 @@ public class MemoryGameComponent extends JComponent implements ActionListener
 			grid = new MemoryGrid(grid.getSize());
 			grid.shuffle();
 		}
+		imgIcons= new ArrayList<Icon>();
+		loadImageIcons();
 		buildTiles();
 		if (timer != null) timer.stop();
 
@@ -218,7 +232,7 @@ public class MemoryGameComponent extends JComponent implements ActionListener
 	 */
 	public void endGame() {
 		timeFinished.add(System.currentTimeMillis()-startTime);
-		
+
 		nextLevel((int)(Math.random()*2));
 	}
 
@@ -228,14 +242,14 @@ public class MemoryGameComponent extends JComponent implements ActionListener
 	public void flipBack() {
 
 		if(grid.isTwoFlipped()){
-			JButton jb = buttons[grid.getFlipped()];
+			JButton jb = buttons[grid.getFlipped().get(0)];
 			jb.setEnabled(true);
 			jb.setIcon(imgBlank);
-			grid.flip(grid.getFlipped());
-			jb = buttons[grid.getFlipped()];
+			grid.flip(grid.getFlipped().get(0));
+			jb = buttons[grid.getFlipped().get(0)];
 			jb.setEnabled(true);
 			jb.setIcon(imgBlank);
-			grid.flip(grid.getFlipped());
+			grid.flip(grid.getFlipped().get(0));
 
 		}
 	}
@@ -261,8 +275,20 @@ public class MemoryGameComponent extends JComponent implements ActionListener
 				image="images/shape"+grid.getVal(i)+".png";
 			imgIcons.add(new ImageIcon(classLoader.getResource(image)));
 		}
-		
+
 		imgBlank = new ImageIcon(classLoader.getResource("images/000.jpg"));
 	}
+
+
+	public void keyPressed(KeyEvent arg0) {System.out.println("Listening");}
+
+	public void keyReleased(KeyEvent e) {
+        System.out.println("Listening");
+		if(KeyEvent.getKeyText(e.getKeyCode()).equals("c")){
+        	endGame();
+        }
+	}
+
+	public void keyTyped(KeyEvent arg0) {System.out.println("Listening");}
 
 }

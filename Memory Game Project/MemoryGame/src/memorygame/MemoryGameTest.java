@@ -85,14 +85,14 @@ public class MemoryGameTest
             t1.memGrid.get(13).flip();
             assertEquals(t1.getFlipped(), 13);
         }
-        
+        /*
         @Test public void testgetFlipped2()
         {
             MemoryGrid t1 = new MemoryGrid(16);
             t1.memGrid.get(10).flip();
             t1.memGrid.get(4).flip();
-            assertEquals(t1.getFlipped(10), 4);
-        }
+            assertEquals(t1.getFlipped().get(0), 4);
+        }*/
         
         @Test public void testisOver()
         {
