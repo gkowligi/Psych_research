@@ -27,17 +27,18 @@ public class MemoryGameComponent extends JComponent implements ActionListener,Ke
 	private ArrayList<Long> timeFinished;
 	private int nGames;
 	private int currentTrial;
-	private int numMoves=0; //2 flips = 1 move
+	private int numMoves; //2 flips = 1 move
 	/*    ClickedImage	Time
 	 * 	0     
 	 * 	1
 	 * 	2
 	 */
-	private ArrayList<ArrayList<Long>> moveHistory;
+	private ArrayList<ArrayList<long[]>> moveHistory;
+	private ArrayList<long[]> currentMoves;
 
 	//----------------------Old code-------------------------
 	private JButton []        buttons;
-	private ArrayList<Icon>   imgIcons          = new ArrayList<Icon>();
+	private ArrayList<ImageIcon>   imgIcons          = new ArrayList<ImageIcon>();
 
 	private Icon              imgBlank;
 
@@ -64,7 +65,12 @@ public class MemoryGameComponent extends JComponent implements ActionListener,Ke
 		super(); 
 		timeFinished = new ArrayList<Long>(); 
 		nGames=ngames;
-
+		moveHistory=new ArrayList<ArrayList<long[]>>();
+		currentMoves=new ArrayList<long[]>();
+		currentTrial=0;
+		numMoves=0;
+		
+		
 		mainFrame=new JFrame();
 		timer = new Timer(0, this);
 		grid = game;
@@ -94,6 +100,13 @@ public class MemoryGameComponent extends JComponent implements ActionListener,Ke
 
 	public void setMainFrame(JFrame f){
 		mainFrame =f;
+		mainFrame.addComponentListener(new ComponentAdapter() {
+		    public void componentResized(ComponentEvent e) {
+		        for(int i=0;i<imgIcons.size();i++){
+		        	imgIcons.set(i, new ImageIcon(imgIcons.get(i).getImage().getScaledInstance(buttons[0].getWidth(), buttons[0].getHeight(), java.awt.Image.SCALE_SMOOTH)));
+		        }          
+		    }
+		});
 	}
 
 
@@ -138,21 +151,22 @@ public class MemoryGameComponent extends JComponent implements ActionListener,Ke
 		}
 
 		public void actionPerformed (ActionEvent event) {
-
-			System.out.println(System.currentTimeMillis());
+			currentMoves.add(new long[]{num,System.currentTimeMillis()});
 			
 			
-
 			//if 2 MemoryCards are flipped, flip back over
 
 			if(grid.isTwoFlipped()){
 				flipBack();
 				flipBackTimer.stop();
 			}
+			
+			
+			
 			//if no MemoryCards are flipped, flip one
 			if (!grid.isOneFlipped()){
 				if (!firstImageFlipped) {
-					startTime = (new Date().getTime());
+					startTime = System.currentTimeMillis();
 					//timer.start();
 					firstImageFlipped = true;
 					//		    		pauseButton.setEnabled(true);
@@ -169,7 +183,7 @@ public class MemoryGameComponent extends JComponent implements ActionListener,Ke
 			//if one MemoryCard is flipped, flip other
 			//then check if theyre matching
 			else{
-
+				numMoves++;
 				int a=grid.getFlipped().get(0);
 				grid.flip(num);
 				JButton jb = buttons[num];
@@ -213,11 +227,12 @@ public class MemoryGameComponent extends JComponent implements ActionListener,Ke
 		}
 
 		if(newGrid==1){
-			grid = new MemoryGrid(grid.getSize());
+			grid = new MemoryGrid(grid.getSize(),grid.getNumImage());
 			grid.shuffle();
+			imgIcons= new ArrayList<ImageIcon>();
+			loadImageIcons();
 		}
-		imgIcons= new ArrayList<Icon>();
-		loadImageIcons();
+		
 		buildTiles();
 		if (timer != null) timer.stop();
 
@@ -232,7 +247,7 @@ public class MemoryGameComponent extends JComponent implements ActionListener,Ke
 	 */
 	public void endGame() {
 		timeFinished.add(System.currentTimeMillis()-startTime);
-
+		moveHistory.add(currentMoves);
 		nextLevel((int)(Math.random()*2));
 	}
 
@@ -273,7 +288,7 @@ public class MemoryGameComponent extends JComponent implements ActionListener,Ke
 				image="images/shape0"+grid.getVal(i)+".png";
 			else
 				image="images/shape"+grid.getVal(i)+".png";
-			imgIcons.add(new ImageIcon(classLoader.getResource(image)));
+			imgIcons.add(new ImageIcon(classLoader.getResource(image)));//.getImage().getScaledInstance(buttons[0].getWidth(), buttons[0].getHeight(), java.awt.Image.SCALE_SMOOTH)));
 		}
 
 		imgBlank = new ImageIcon(classLoader.getResource("images/000.jpg"));

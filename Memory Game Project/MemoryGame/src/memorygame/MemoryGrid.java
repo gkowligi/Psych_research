@@ -17,6 +17,7 @@ public class MemoryGrid{
 	int size;
 	boolean isOver=false;
 	ArrayList<Integer> currentFlipped;
+	int numImage;
 	/** MemoryGrid constructor that takes in a parameter
 	 * @param gridSize for the size the of the grid
 	 */
@@ -27,6 +28,7 @@ public class MemoryGrid{
 			System.out.println("Grid Size Error: Grid size has to be even");
 			System.exit(1);
 		}
+		numImage=gridSize;
 		currentFlipped=new ArrayList<Integer>();
 		for(int i=1; i<((size/2)+1); i++){
 			MemoryCard temp  = new MemoryCard(i);
@@ -44,6 +46,7 @@ public class MemoryGrid{
 			System.out.println("Grid Size Error: Grid size has to be even");
 			System.exit(1);
 		}
+		numImage=nImage;
 		currentFlipped=new ArrayList<Integer>();
 		ArrayList<Integer> a = new ArrayList<Integer>();
 		for(int i=1;i<=nImage;i++){
@@ -58,6 +61,14 @@ public class MemoryGrid{
 			a.remove(r);
 		}   
 
+	}
+
+	public int getNumImage() {
+		return numImage;
+	}
+
+	public void setNumImage(int numImage) {
+		this.numImage = numImage;
 	}
 
 	/**Method getSize()
