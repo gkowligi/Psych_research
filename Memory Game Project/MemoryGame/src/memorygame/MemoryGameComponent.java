@@ -8,8 +8,13 @@ import javax.swing.*;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.Math;
 import java.net.URL;
+import java.nio.file.Files;
 
 /**
  * A Swing component for playing the Memory Card Game
@@ -27,7 +32,8 @@ public class MemoryGameComponent extends JComponent implements ActionListener,Ke
 	private ArrayList<Long> timeFinished;
 	private int nGames;
 	private int currentTrial;
-	private int numMoves; //2 flips = 1 move
+	private int currentNumMoves; //2 flips = 1 move
+	private ArrayList<Integer> numMoves; 
 	/*    ClickedImage	Time
 	 * 	0     
 	 * 	1
@@ -68,7 +74,8 @@ public class MemoryGameComponent extends JComponent implements ActionListener,Ke
 		moveHistory=new ArrayList<ArrayList<long[]>>();
 		currentMoves=new ArrayList<long[]>();
 		currentTrial=0;
-		numMoves=0;
+		numMoves=new ArrayList<Integer>();
+		currentNumMoves=0;
 		
 		
 		mainFrame=new JFrame();
@@ -183,7 +190,7 @@ public class MemoryGameComponent extends JComponent implements ActionListener,Ke
 			//if one MemoryCard is flipped, flip other
 			//then check if theyre matching
 			else{
-				numMoves++;
+				currentNumMoves++;
 				int a=grid.getFlipped().get(0);
 				grid.flip(num);
 				JButton jb = buttons[num];
@@ -222,9 +229,9 @@ public class MemoryGameComponent extends JComponent implements ActionListener,Ke
 
 	public void nextLevel(int newGrid) {
 		gameCounter = 0;
-		if (currentTrial < nGames) {
-			currentTrial++;
-		}
+		
+		
+		
 
 		if(newGrid==1){
 			grid = new MemoryGrid(grid.getSize(),grid.getNumImage());
@@ -248,9 +255,19 @@ public class MemoryGameComponent extends JComponent implements ActionListener,Ke
 	public void endGame() {
 		timeFinished.add(System.currentTimeMillis()-startTime);
 		moveHistory.add(currentMoves);
-		nextLevel((int)(Math.random()*2));
+		numMoves.add(currentNumMoves);
+		currentTrial++;
+		if(currentTrial<nGames)
+			nextLevel((int)(Math.random()*2));
+		else{
+			writeData("MemoryGameData");
+			displayEndScreen();
+		}
+			
 	}
-
+	public void displayEndScreen(){
+		
+	}
 	/**
        If two cards are showing, flips them back over
 	 */
@@ -293,7 +310,44 @@ public class MemoryGameComponent extends JComponent implements ActionListener,Ke
 
 		imgBlank = new ImageIcon(classLoader.getResource("images/000.jpg"));
 	}
+	public void writeData(String filename){
+		try {
 
+			File dir = new File("Data/");
+			if (!Files.exists(dir.toPath())) {
+				dir.mkdirs();
+			}
+			File file = new File("Data/"+filename+".txt");
+ 
+			FileWriter fw = new FileWriter(file);
+			BufferedWriter bw = new BufferedWriter(fw);
+			for(int i=0;i<moveHistory.size();i++){
+				bw.write("===================================");
+				bw.newLine();
+				bw.write("Trial#: "+i+"\tNumber of Moves: "+numMoves.get(i));
+				bw.newLine();
+				bw.write("Solve Time: "+timeFinished.get(i));
+				bw.newLine();
+				bw.write("===================================");
+				bw.newLine();
+				bw.write("Button Number\tTime Pressed");
+				bw.newLine();
+				ArrayList<long[]> temp=moveHistory.get(i);
+				for(int j=0;j<temp.size();j++){
+					bw.write(temp.get(j)[0]+"\t"+temp.get(j)[1]);
+					bw.newLine();
+				}
+			}
+			
+			
+			bw.close();
+ 
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 
 	public void keyPressed(KeyEvent arg0) {System.out.println("Listening");}
 

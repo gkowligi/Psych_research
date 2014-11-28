@@ -23,9 +23,9 @@ import java.io.*;
  * Edited Professor Phill Conrad's code from Lab06
  */
 public class MemoryGameGui {
-	static final int NUMBER_OF_GAMES=10;
+	static final int NUMBER_OF_GAMES=1;
 	static final int WINDOW_SIZE = 500;
-	static final int GRID_SIZE=30;
+	static final int GRID_SIZE=6;
 	static final int NUMBER_OF_SHAPES=50;
 	static JFrame frame = new JFrame("Memory Card Game");
 	static MemoryGrid grid = new MemoryGrid(GRID_SIZE,NUMBER_OF_SHAPES);
