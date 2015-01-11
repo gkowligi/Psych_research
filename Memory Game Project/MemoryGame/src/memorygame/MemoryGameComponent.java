@@ -41,7 +41,7 @@ public class MemoryGameComponent extends JComponent implements ActionListener,Ke
 	 */
 	private ArrayList<ArrayList<long[]>> moveHistory;
 	private ArrayList<long[]> currentMoves;
-
+	private int[] button2imageMap;
 	//----------------------Old code-------------------------
 	private JButton []        buttons;
 	private ArrayList<ImageIcon>   imgIcons          = new ArrayList<ImageIcon>();
@@ -82,12 +82,15 @@ public class MemoryGameComponent extends JComponent implements ActionListener,Ke
 		timer = new Timer(0, this);
 		grid = game;
 		buttons= new JButton[grid.getSize()];
+		button2imageMap=new int[grid.getSize()];
 		grid.shuffle();
 
 		loadImageIcons(); // loads the array list of icons and sets imgBlank
 		buildTiles();
 		startTime = 0;//dummy val. it is initialized when first image is flipped
-		
+		mainFrame.addKeyListener(this);
+		mainFrame.setFocusable(true);
+		mainFrame.setFocusTraversalKeysEnabled(false);
 		//mainFrame.addKeyListener(this);
 		//timer.start();
 	}
@@ -114,6 +117,9 @@ public class MemoryGameComponent extends JComponent implements ActionListener,Ke
 		        }          
 		    }
 		});
+		mainFrame.addKeyListener(this);
+		mainFrame.setFocusable(true);
+		mainFrame.setFocusTraversalKeysEnabled(false);
 	}
 
 
@@ -158,7 +164,13 @@ public class MemoryGameComponent extends JComponent implements ActionListener,Ke
 		}
 
 		public void actionPerformed (ActionEvent event) {
-			currentMoves.add(new long[]{num,System.currentTimeMillis()});
+			if (!firstImageFlipped) {
+					startTime = System.currentTimeMillis();
+					//timer.start();
+					firstImageFlipped = true;
+					//		    		pauseButton.setEnabled(true);
+			}
+			currentMoves.add(new long[]{num,System.currentTimeMillis()-startTime});
 			
 			
 			//if 2 MemoryCards are flipped, flip back over
@@ -172,12 +184,7 @@ public class MemoryGameComponent extends JComponent implements ActionListener,Ke
 			
 			//if no MemoryCards are flipped, flip one
 			if (!grid.isOneFlipped()){
-				if (!firstImageFlipped) {
-					startTime = System.currentTimeMillis();
-					//timer.start();
-					firstImageFlipped = true;
-					//		    		pauseButton.setEnabled(true);
-				}
+				
 				grid.flip(num);
 				JButton jb = buttons[num];
 				Icon i = imgIcons.get(num);
@@ -266,6 +273,15 @@ public class MemoryGameComponent extends JComponent implements ActionListener,Ke
 			
 	}
 	public void displayEndScreen(){
+		mainFrame.dispatchEvent(new WindowEvent(mainFrame, WindowEvent.WINDOW_CLOSING));
+		mainFrame=new JFrame("Thank You");
+		mainFrame.setSize(500,500);
+        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+		mainFrame.add(new JLabel(new ImageIcon(this.getClass().getClassLoader().getResource("images/EndMessage.png"))));
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		mainFrame.setLocation((int)(screenSize.getWidth()/2 - mainFrame.getSize().getWidth()/2), (int)(screenSize.getHeight()/2 - mainFrame.getSize().getHeight()/2));
+		mainFrame.setVisible(true);
 		
 	}
 	/**
@@ -306,6 +322,7 @@ public class MemoryGameComponent extends JComponent implements ActionListener,Ke
 			else
 				image="images/shape"+grid.getVal(i)+".png";
 			imgIcons.add(new ImageIcon(classLoader.getResource(image)));//.getImage().getScaledInstance(buttons[0].getWidth(), buttons[0].getHeight(), java.awt.Image.SCALE_SMOOTH)));
+			button2imageMap[i]=grid.getVal(i);
 		}
 
 		imgBlank = new ImageIcon(classLoader.getResource("images/000.jpg"));
@@ -317,8 +334,14 @@ public class MemoryGameComponent extends JComponent implements ActionListener,Ke
 			if (!Files.exists(dir.toPath())) {
 				dir.mkdirs();
 			}
-			File file = new File("Data/"+filename+".txt");
- 
+			int num=1;
+			String name=filename+num;
+			File file = new File("Data/"+name+".txt");
+			while(Files.exists(file.toPath())){
+				num++;
+				name=filename+num;
+				file = new File("Data/"+name+".txt");
+			}
 			FileWriter fw = new FileWriter(file);
 			BufferedWriter bw = new BufferedWriter(fw);
 			for(int i=0;i<moveHistory.size();i++){
@@ -326,17 +349,40 @@ public class MemoryGameComponent extends JComponent implements ActionListener,Ke
 				bw.newLine();
 				bw.write("Trial#: "+i+"\tNumber of Moves: "+numMoves.get(i));
 				bw.newLine();
-				bw.write("Solve Time: "+timeFinished.get(i));
+				bw.write("Solve Time: "+timeFinished.get(i)+" ms");
 				bw.newLine();
-				bw.write("===================================");
+				bw.write("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 				bw.newLine();
-				bw.write("Button Number\tTime Pressed");
+				bw.write("Button to Image Number Map");
+				bw.newLine();
+				int col=(int)Math.sqrt(grid.getSize());
+				int row=grid.getSize()/col;
+				String divLine="";
+				for(int l=0;l<col;l++)
+					divLine+="------";
+				for(int j=0;j<row;j++){
+					bw.write(divLine);
+					bw.newLine();
+					for(int k=0;k<col;k++){
+						bw.write("| "+button2imageMap[j*col+k]+" ");
+					}
+					bw.write("|");
+					bw.newLine();
+					
+				}
+				bw.write(divLine);
+				bw.newLine();
+				bw.write("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+				bw.newLine();
+				bw.write("Button Number\tTime Pressed (ms)");
 				bw.newLine();
 				ArrayList<long[]> temp=moveHistory.get(i);
 				for(int j=0;j<temp.size();j++){
 					bw.write(temp.get(j)[0]+"\t"+temp.get(j)[1]);
 					bw.newLine();
 				}
+				bw.write("===================================");
+				bw.newLine();
 			}
 			
 			
@@ -349,15 +395,17 @@ public class MemoryGameComponent extends JComponent implements ActionListener,Ke
 	}
 	
 
-	public void keyPressed(KeyEvent arg0) {System.out.println("Listening");}
+	public void keyPressed(KeyEvent e) {}
 
 	public void keyReleased(KeyEvent e) {
-        System.out.println("Listening");
-		if(KeyEvent.getKeyText(e.getKeyCode()).equals("c")){
-        	endGame();
+        //System.out.println(KeyEvent.getKeyText(e.getKeyCode()));
+		
+        if(KeyEvent.getKeyText(e.getKeyCode()).equals("C")||KeyEvent.getKeyText(e.getKeyCode()).equals("c")){
+        	System.out.println("Cheat Code Activated. To The Next Level!");
+			endGame();
         }
 	}
 
-	public void keyTyped(KeyEvent arg0) {System.out.println("Listening");}
+	public void keyTyped(KeyEvent e) {}
 
 }
