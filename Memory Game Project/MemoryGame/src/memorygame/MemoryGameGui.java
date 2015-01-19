@@ -23,7 +23,7 @@ import java.io.*;
  * Edited Professor Phill Conrad's code from Lab06
  */
 public class MemoryGameGui {
-	static final int NUMBER_OF_GAMES=1;
+	static final int NUMBER_OF_GAMES=5;
 	static final int WINDOW_SIZE = 500;
 	static final int GRID_SIZE=6;
 	static final int NUMBER_OF_SHAPES=50;

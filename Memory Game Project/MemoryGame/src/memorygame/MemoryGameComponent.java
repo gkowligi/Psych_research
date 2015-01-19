@@ -93,21 +93,24 @@ public class MemoryGameComponent extends JComponent implements ActionListener,Ke
 		mainFrame.setFocusTraversalKeysEnabled(false);
 		//mainFrame.addKeyListener(this);
 		//timer.start();
-	}
-
-
-	/**
-       Callback from the timer. This is used to update the time remaining
-       label and to check if the game has ended as a result of the level
-       time running out.
-	 */
-	public void actionPerformed(ActionEvent e) {
-			//buttons[0].doClick();
-			//System.out.println(System.currentTimeMillis());
 		
 	}
 
 
+	/**
+       Callback from the timer.
+	 */
+	public void actionPerformed(ActionEvent e) {
+			buttons[(int)(buttons.length*Math.random())].doClick();
+			System.out.println(System.currentTimeMillis());
+		
+	}
+	public void resizeIcon(){
+		for(int i=0;i<imgIcons.size();i++){
+        	imgIcons.set(i, new ImageIcon(imgIcons.get(i).getImage().getScaledInstance(buttons[0].getWidth(), buttons[0].getHeight(), java.awt.Image.SCALE_SMOOTH)));
+        }  
+	}
+	
 	public void setMainFrame(JFrame f){
 		mainFrame =f;
 		mainFrame.addComponentListener(new ComponentAdapter() {
@@ -141,7 +144,7 @@ public class MemoryGameComponent extends JComponent implements ActionListener,Ke
 
 			//get rid of annoying boxes appearing around icon next to clicked icon
 			jb.setFocusPainted(false);
-
+			jb.setFocusable(false);
 			this.add(jb);
 		}
 		this.repaint();
@@ -169,10 +172,11 @@ public class MemoryGameComponent extends JComponent implements ActionListener,Ke
 					//timer.start();
 					firstImageFlipped = true;
 					//		    		pauseButton.setEnabled(true);
+					
 			}
 			currentMoves.add(new long[]{num,System.currentTimeMillis()-startTime});
 			
-			
+			//System.out.println(System.currentTimeMillis());
 			//if 2 MemoryCards are flipped, flip back over
 
 			if(grid.isTwoFlipped()){
@@ -245,12 +249,19 @@ public class MemoryGameComponent extends JComponent implements ActionListener,Ke
 			grid.shuffle();
 			imgIcons= new ArrayList<ImageIcon>();
 			loadImageIcons();
+			System.out.println(1);
 		}
+		else
+			grid.flipAllBack();
 		
 		buildTiles();
+		resizeIcon();
 		if (timer != null) timer.stop();
 
 		firstImageFlipped = false;
+		mainFrame.addKeyListener(this);
+		mainFrame.setFocusable(true);
+		mainFrame.setFocusTraversalKeysEnabled(false);
 		//startTime=System.currentTimeMillis();
 	}
 
@@ -262,8 +273,13 @@ public class MemoryGameComponent extends JComponent implements ActionListener,Ke
 	public void endGame() {
 		timeFinished.add(System.currentTimeMillis()-startTime);
 		moveHistory.add(currentMoves);
+		//for(ArrayList<long[]> a:moveHistory)
+		//	System.out.println(a.size());
 		numMoves.add(currentNumMoves);
 		currentTrial++;
+		currentMoves=new ArrayList<long[]>();
+		currentNumMoves=0;
+		
 		if(currentTrial<nGames)
 			nextLevel((int)(Math.random()*2));
 		else{

@@ -178,4 +178,10 @@ public class MemoryGrid{
 		while(!currentFlipped.isEmpty())
 			currentFlipped.remove(currentFlipped.size()-1);
 	}
+	public void flipAllBack(){
+		for(int i=0;i<memGrid.size();++i){
+			if(memGrid.get(i).isFlipped())
+				memGrid.get(i).flip();
+		}
+	}
 }
